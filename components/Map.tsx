@@ -1,40 +1,76 @@
 import React from 'react';
-import { levels } from '../utils/levels';
-import styles from '../styles/Map.module.css';
+import { Level } from '../utils/levels';
 
-// 節點座標（已調整適應響應式地圖）
-const nodePositions = [
-  { top: '70%', left: '15%' },
-  { top: '55%', left: '25%' },
-  { top: '40%', left: '38%' },
-  { top: '25%', left: '52%' },
-  { top: '15%', left: '65%' },
-  { top: '10%', left: '78%' },
-  { top: '8%', left: '88%' },
-];
+interface MapProps {
+  currentLevel: number;
+  onSelectLevel: (level: number) => void;
+  levels: Level[];
+}
 
-export default function Map({ currentLevel, onSelectLevel }: { currentLevel: number; onSelectLevel: (id: number) => void }) {
+const MapComponent: React.FC<MapProps> = ({ currentLevel, onSelectLevel, levels }) => {
   return (
-    <div className={styles.mapContainer}>
-      {/* 地圖背景，可換成SVG或美術圖 */}
-      <div className={styles.mapBg}></div>
-      {/* 節點 */}
-      {levels.map((level, idx) => (
-        <div
-          key={level.id}
-          className={
-            `${styles.node} ` +
-            (level.status === 'completed' ? styles.completed : level.status === 'unlocked' ? styles.unlocked : styles.locked) +
-            (currentLevel === level.id ? ' ' + styles.current : '')
-          }
-          style={{ top: nodePositions[idx]?.top, left: nodePositions[idx]?.left }}
-          onClick={() => level.status !== 'locked' && onSelectLevel(level.id)}
-        >
-          <span>{level.id}</span>
-          {level.status === 'locked' && <span className={styles.lock}>🔒</span>}
-          {currentLevel === level.id && <span className={styles.player}>🧑‍🚀</span>}
-        </div>
-      ))}
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.05)',
+      borderRadius: '12px',
+      padding: '16px',
+      border: '1px solid rgba(0, 230, 184, 0.2)'
+    }}>
+      <h3 style={{color: '#00e6b8', marginBottom: '16px', fontSize: '1.1rem'}}>關卡地圖</h3>
+      <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+        {levels.map((level) => (
+          <div
+            key={level.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '12px',
+              borderRadius: '8px',
+              cursor: level.status !== 'locked' ? 'pointer' : 'not-allowed',
+              transition: 'all 0.3s ease',
+              border: '1px solid transparent',
+              background: level.status === 'completed' 
+                ? 'rgba(0, 230, 184, 0.2)' 
+                : level.status === 'unlocked' 
+                ? 'rgba(0, 230, 184, 0.1)' 
+                : 'transparent',
+              borderColor: level.status === 'completed' 
+                ? '#00e6b8' 
+                : level.status === 'unlocked' 
+                ? 'rgba(0, 230, 184, 0.3)' 
+                : 'transparent',
+              opacity: level.status === 'locked' ? 0.5 : 1
+            }}
+            onClick={() => {
+              if (level.status !== 'locked') {
+                onSelectLevel(level.id);
+              }
+            }}
+          >
+            <span style={{
+              background: '#00e6b8',
+              color: '#1a2332',
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 'bold',
+              fontSize: '0.9rem',
+              marginRight: '12px'
+            }}>{level.id}</span>
+            <span style={{
+              flex: 1,
+              color: '#fff',
+              fontSize: '0.9rem'
+            }}>{level.title}</span>
+            {level.status === 'completed' && <span style={{color: '#00e6b8', fontSize: '1.2rem'}}>✓</span>}
+            {level.status === 'locked' && <span style={{fontSize: '1rem'}}>🔒</span>}
+          </div>
+        ))}
+      </div>
     </div>
   );
-}
+};
+
+export default MapComponent;
