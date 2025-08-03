@@ -627,10 +627,11 @@ export default function BasketballGame({ onScoreSuccess, disabled = false, reset
         </p>
         <p className={styles.gameInstructions}>
           點擊籃球附近區域拖曳來瞄準，放開發射！
+          沒投進請按重新開始
         </p>
         {hasScored && (
           <p className={styles.scoreMessage}>
-            🎉 進球了！太棒了！
+            進球了！強ㄝ！
           </p>
         )}
         <button
