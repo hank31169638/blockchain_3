@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MapComponent from '../components/Map';
 import LevelCard from '../components/LevelCard';
 import ProgressBar from '../components/ProgressBar';
+import BasketballGameContainer from '../components/BasketballGameContainer';
 import { levels } from '../utils/levels';
 import styles from '../styles/Home.module.css';
 import SuccessPage from '../components/SuccessPage'; // 假設有一個成功頁面組件
@@ -13,6 +14,17 @@ export default function Home() {
   const [feedback, setFeedback] = useState('');
   const [feedbackType, setFeedbackType] = useState<'success' | 'error'>('error');
   const [levelStates, setLevelStates] = useState(levels || []);
+  const [lastAnswerCorrect, setLastAnswerCorrect] = useState(true);
+  const [canAnswer, setCanAnswer] = useState(false);
+  const [wrongAnswerCount, setWrongAnswerCount] = useState(0);
+
+  // 當切換關卡時重置投籃狀態
+  const handleLevelChange = (newLevel: number) => {
+    setCurrentLevel(newLevel);
+    setCanAnswer(false);
+    setWrongAnswerCount(0);
+    setFeedback('');
+  };
 
   // 關卡提交邏輯（僅範例，需根據題目設計驗證）
   const handleSubmit = (input: string) => {
@@ -53,7 +65,12 @@ export default function Home() {
       // 動畫延遲後進入下一關
       setTimeout(() => {
         setFeedback('');
-        if (currentLevel < levels.length) setCurrentLevel(currentLevel + 1);
+        if (currentLevel < levels.length) {
+          setCurrentLevel(currentLevel + 1);
+          // 進入下一關時重置投籃狀態
+          setCanAnswer(false);
+          setWrongAnswerCount(0);
+        }
       }, 1500);
     } else {
       setFeedback('❌ 答案不正確！');
@@ -65,6 +82,26 @@ export default function Home() {
       }, 3000);
     }
   };
+
+  // 處理答題嘗試的回調
+  const handleAnswerAttempt = (isCorrect: boolean) => {
+    setLastAnswerCorrect(isCorrect);
+    if (!isCorrect) {
+      setWrongAnswerCount(prev => prev + 1);
+      setCanAnswer(false); // 答錯需要重新投籃
+    }
+  };
+
+  // 處理投籃成功
+  const handleBasketballSuccess = () => {
+    setCanAnswer(true);
+  };
+
+  // 確保遊戲開始時需要先投籃
+  useEffect(() => {
+    setCanAnswer(false);
+    setWrongAnswerCount(0);
+  }, []);
 
   const allCompleted = levelStates && levelStates.length > 0 && levelStates.every(lv => lv.status === 'completed');
 
@@ -78,11 +115,14 @@ export default function Home() {
             <h1 style={{color: '#00e6b8', fontSize: '2rem'}}>區塊鏈破關任務</h1>
             <ProgressBar current={currentLevel - 1} total={levels?.length || 0} />
           </header>
-          <main className={styles.main} style={{display: 'flex', maxWidth: '1400px', margin: '0 auto', padding: '16px', gap: '24px'}}>
-            <div className={styles.leftPanel} style={{flex: '0 0 280px', display: 'flex', flexDirection: 'column'}}>
-              <MapComponent currentLevel={currentLevel} onSelectLevel={setCurrentLevel} levels={levelStates || []} />
+          <main className={styles.main} style={{display: 'flex', maxWidth: '1800px', margin: '0 auto', padding: '16px', gap: '20px', height: 'calc(100vh - 120px)'}}>
+            {/* 地圖區域 - 1 份 */}
+            <div className={styles.leftPanel} style={{flex: '1', display: 'flex', flexDirection: 'column', minWidth: '0'}}>
+              <MapComponent currentLevel={currentLevel} onSelectLevel={handleLevelChange} levels={levelStates || []} />
             </div>
-            <div className={styles.rightPanel} style={{flex: '1', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '20px'}}>
+            
+            {/* 題目區域 - 1.8 份 */}
+            <div className={styles.centerPanel} style={{flex: '1.8', display: 'flex', flexDirection: 'column', minWidth: '0', overflow: 'hidden'}}>
               {levelStates && levelStates[currentLevel - 1] && (
                 <LevelCard
                   key={currentLevel} // 強制重新載入組件以清空輸入框
@@ -90,8 +130,20 @@ export default function Home() {
                   onSubmit={handleSubmit}
                   feedback={feedback}
                   feedbackType={feedbackType}
+                  onAnswerAttempt={handleAnswerAttempt}
+                  canAnswer={canAnswer}
                 />
               )}
+            </div>
+            
+            {/* 投籃遊戲區域 - 1.2 份 */}
+            <div className={styles.rightPanel} style={{flex: '1.2', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minWidth: '0'}}>
+              <BasketballGameContainer 
+                onScoreSuccess={handleBasketballSuccess}
+                canAnswer={canAnswer}
+                wrongAnswerCount={wrongAnswerCount}
+                currentLevel={currentLevel}
+              />
             </div>
           </main>
         </>

@@ -6,6 +6,9 @@ interface Props {
   onSubmit: (input: string) => void;
   feedback: string;
   feedbackType?: 'success' | 'error';
+  onAnswerAttempt?: (isCorrect: boolean) => void;
+  canAnswer?: boolean;
+  onBasketballSuccess?: () => void;
 }
 
 // 工具連結對應表
@@ -29,18 +32,28 @@ function parseHintWithLinks(hint: string) {
   return parsedHint;
 }
 
-export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'error' }: Props) {
+export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'error', onAnswerAttempt, canAnswer = false }: Props) {
   const [input, setInput] = useState('');
   const [showHint, setShowHint] = useState(false);
 
   const handleSubmit = () => {
-    if (input.trim()) {
-      onSubmit(input.trim());
+    if (input.trim() && canAnswer) {
+      const previousInput = input.trim();
+      onSubmit(previousInput);
+      
+      // 通知父組件有答題嘗試
+      if (onAnswerAttempt) {
+        // 我們需要等feedback更新後再判斷答案是否正確
+        setTimeout(() => {
+          const isCorrect = !feedback.includes('❌');
+          onAnswerAttempt(isCorrect);
+        }, 100);
+      }
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && canAnswer) {
       handleSubmit();
     }
   };
@@ -48,12 +61,15 @@ export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'e
   const cardStyle: React.CSSProperties = {
     background: 'rgba(255, 255, 255, 0.05)',
     borderRadius: '16px',
-    padding: '24px',
+    padding: '20px',
     border: '1px solid rgba(0, 230, 184, 0.2)',
     backdropFilter: 'blur(10px)',
-    maxWidth: '600px',
     width: '100%',
-    color: '#fff'
+    height: '100%',
+    color: '#fff',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto'
   };
 
   const titleStyle: React.CSSProperties = {
@@ -225,18 +241,51 @@ export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'e
           </>
         ) : (
           <div>
+            {/* 投籃狀態提示 */}
+            {!canAnswer && (
+              <div style={{
+                marginBottom: '16px',
+                padding: '12px',
+                background: 'rgba(255, 193, 7, 0.2)',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 193, 7, 0.5)',
+                color: '#ffc107',
+                textAlign: 'center',
+                fontSize: '14px'
+              }}>
+                🏀 請先在右側投籃成功才能回答問題！
+                {level.id > 1 && (
+                  <div>
+                    <br />
+                    <small>每關都需要重新投籃證明實力！</small>
+                  </div>
+                )}
+              </div>
+            )}
+            
             <div style={inputRowStyle}>
               <input
                 type="text"
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={`範例：${level.example}`}
-                style={{...inputStyle, flex: 1}}
+                placeholder={canAnswer ? `範例：${level.example}` : '請先投籃成功！'}
+                disabled={!canAnswer}
+                style={{
+                  ...inputStyle, 
+                  flex: 1,
+                  opacity: canAnswer ? 1 : 0.5,
+                  cursor: canAnswer ? 'text' : 'not-allowed'
+                }}
               />
               <button 
-                style={submitButtonStyle} 
+                style={{
+                  ...submitButtonStyle,
+                  opacity: canAnswer ? 1 : 0.5,
+                  cursor: canAnswer ? 'pointer' : 'not-allowed'
+                }} 
                 onClick={handleSubmit}
+                disabled={!canAnswer}
               >
                 提交
               </button>
