@@ -131,13 +131,13 @@ export default function Home() {
           <main className={styles.mainContent}>
             <div className={styles.gameLayout}>
               {/* 地圖區域 */}
-              <div className={`${styles.mapSection} ${styles.loading}`}>
+            
                 <MapComponent 
                   currentLevel={currentLevel} 
                   onSelectLevel={handleLevelChange} 
                   levels={levelStates || []} 
                 />
-              </div>
+              
               
               {/* 題目區域 */}
               <div className={`${styles.questionSection} ${styles.loading}`}>

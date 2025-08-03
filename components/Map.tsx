@@ -13,7 +13,8 @@ const MapComponent: React.FC<MapProps> = ({ currentLevel, onSelectLevel, levels 
       background: 'rgba(255, 255, 255, 0.05)',
       borderRadius: '12px',
       padding: '16px',
-      border: '1px solid rgba(0, 230, 184, 0.2)'
+      border: '1px solid rgba(0, 230, 184, 0.2)',
+      height: '100%',
     }}>
       <h3 style={{color: '#00e6b8', marginBottom: '16px', fontSize: '1.1rem'}}>關卡地圖</h3>
       <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
