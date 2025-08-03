@@ -63,71 +63,10 @@ export default function Home() {
   const [feedback, setFeedback] = useState('');
   const [feedbackType, setFeedbackType] = useState<'success' | 'error'>('error');
   const [levelStates, setLevelStates] = useState(levels || []);
-  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
-  const [isLocked, setIsLocked] = useState(false);
-
-  // 檢查是否被鎖定
-  useEffect(() => {
-    const checkLockStatus = () => {
-      const lockKey = `level_lock_${currentLevel}`;
-      const lockTime = localStorage.getItem(lockKey);
-      
-      if (lockTime) {
-        const lockUntil = parseInt(lockTime);
-        const now = Date.now();
-        
-        if (now < lockUntil) {
-          setLockedUntil(lockUntil);
-          setIsLocked(true);
-          
-          // 設定倒數計時
-          const timer = setInterval(() => {
-            const remaining = lockUntil - Date.now();
-            if (remaining <= 0) {
-              setIsLocked(false);
-              setLockedUntil(null);
-              localStorage.removeItem(lockKey);
-              clearInterval(timer);
-            }
-          }, 1000);
-          
-          return () => clearInterval(timer);
-        } else {
-          localStorage.removeItem(lockKey);
-        }
-      }
-    };
-    
-    checkLockStatus();
-  }, [currentLevel]);
-
-  // 設定鎖定
-  const setLockdown = (levelId: number) => {
-    const lockKey = `level_lock_${levelId}`;
-    const lockUntil = Date.now() + 30000; // 鎖定1分鐘
-    localStorage.setItem(lockKey, lockUntil.toString());
-    setLockedUntil(lockUntil);
-    setIsLocked(true);
-  };
-
-  // 格式化剩餘時間
-  const formatRemainingTime = () => {
-    if (!lockedUntil) return '';
-    const remaining = Math.max(0, lockedUntil - Date.now());
-    const seconds = Math.ceil(remaining / 1000);
-    return `${seconds}秒`;
-  };
-  
 
   // 關卡提交邏輯（僅範例，需根據題目設計驗證）
   const handleSubmit = (input: string) => {
     if (!levelStates || levelStates.length === 0) return;
-    if (isLocked) {
-      setFeedback(`⏰ 此關卡已被鎖定，請等待 ${formatRemainingTime()} 後再試`);
-      setFeedbackType('error');
-      setTimeout(() => setFeedback(''), 3000);
-      return;
-    }
     
     const currentLevelData = levelStates[currentLevel - 1];
     if (!currentLevelData) return;
@@ -167,19 +106,12 @@ export default function Home() {
         if (currentLevel < levels.length) setCurrentLevel(currentLevel + 1);
       }, 1500);
     } else {
-      setFeedback('❌ 答案不正確！此關卡將被鎖定30秒');
+      setFeedback('❌ 答案不正確！');
       setFeedbackType('error');
       
-      // 設定鎖定
-      setLockdown(currentLevel);
-      
-      // 3秒後清除錯誤訊息，但保持鎖定狀態
+      // 3秒後清除錯誤訊息
       setTimeout(() => {
-        if (isLocked) {
-          setFeedback(`⏰ 關卡已鎖定，剩餘時間：${formatRemainingTime()}`);
-        } else {
-          setFeedback('');
-        }
+        setFeedback('');
       }, 3000);
     }
   };
@@ -208,8 +140,6 @@ export default function Home() {
                   onSubmit={handleSubmit}
                   feedback={feedback}
                   feedbackType={feedbackType}
-                  isLocked={isLocked}
-                  lockedUntil={lockedUntil}
                 />
               )}
             </div>

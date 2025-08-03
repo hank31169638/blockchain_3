@@ -6,8 +6,6 @@ interface Props {
   onSubmit: (input: string) => void;
   feedback: string;
   feedbackType?: 'success' | 'error';
-  isLocked?: boolean;
-  lockedUntil?: number | null;
 }
 
 // 工具連結對應表
@@ -31,35 +29,11 @@ function parseHintWithLinks(hint: string) {
   return parsedHint;
 }
 
-export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'error', isLocked = false, lockedUntil = null }: Props) {
+export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'error' }: Props) {
   const [input, setInput] = useState('');
   const [showHint, setShowHint] = useState(false);
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
-
-  // 實時更新倒數計時
-  React.useEffect(() => {
-    if (isLocked && lockedUntil) {
-      // 當關卡被鎖定時，清空輸入框
-      setInput('');
-      
-      const updateCountdown = () => {
-        const remaining = Math.max(0, lockedUntil - Date.now());
-        const seconds = Math.ceil(remaining / 1000);
-        setRemainingSeconds(seconds);
-      };
-      
-      updateCountdown(); // 立即更新一次
-      const timer = setInterval(updateCountdown, 1000);
-      
-      return () => clearInterval(timer);
-    } else if (!isLocked) {
-      // 當鎖定解除時，也清空輸入框確保乾淨狀態
-      setInput('');
-    }
-  }, [isLocked, lockedUntil]);
 
   const handleSubmit = () => {
-    if (isLocked) return; // 鎖定時禁止提交
     if (input.trim()) {
       onSubmit(input.trim());
     }
@@ -132,35 +106,27 @@ export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'e
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '12px',
-    border: `1px solid ${isLocked ? 'rgba(102, 102, 102, 0.3)' : 'rgba(0, 230, 184, 0.3)'}`,
+    border: '1px solid rgba(0, 230, 184, 0.3)',
     borderRadius: '8px',
-    background: isLocked 
-      ? 'rgba(0, 0, 0, 0.6)' 
-      : 'rgba(0, 0, 0, 0.3)',
-    color: isLocked ? '#aaa' : '#fff',
+    background: 'rgba(0, 0, 0, 0.3)',
+    color: '#fff',
     fontSize: '1rem',
     marginBottom: '12px',
     marginRight: '12px',
-    cursor: isLocked ? 'not-allowed' : 'text',
-    opacity: isLocked ? 0.5 : 1
+    cursor: 'text'
   };
 
   const submitButtonStyle: React.CSSProperties = {
-    background: isLocked 
-      ? 'linear-gradient(135deg, #666, #444)' 
-      : 'linear-gradient(135deg, #00e6b8, #007a5e)',
-    color: isLocked ? '#aaa' : '#fff',
+    background: 'linear-gradient(135deg, #00e6b8, #007a5e)',
+    color: '#fff',
     border: 'none',
     padding: '12px 24px',
     borderRadius: '8px',
     fontSize: '1rem',
     fontWeight: '600',
-    cursor: isLocked ? 'not-allowed' : 'pointer',
+    cursor: 'pointer',
     transition: 'all 0.3s ease',
-    boxShadow: isLocked 
-      ? 'none' 
-      : '0 4px 15px rgba(0, 230, 184, 0.3)',
-    opacity: isLocked ? 0.5 : 1
+    boxShadow: '0 4px 15px rgba(0, 230, 184, 0.3)'
   };
 
   const feedbackStyle: React.CSSProperties = {
@@ -263,18 +229,16 @@ export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'e
               <input
                 type="text"
                 value={input}
-                onChange={e => !isLocked && setInput(e.target.value)}
+                onChange={e => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={isLocked ? `🔒 關卡鎖定中 ${remainingSeconds}秒` : `範例：${level.example}`}
+                placeholder={`範例：${level.example}`}
                 style={{...inputStyle, flex: 1}}
-                disabled={isLocked}
               />
               <button 
                 style={submitButtonStyle} 
                 onClick={handleSubmit}
-                disabled={isLocked}
               >
-                {isLocked ? '🔒 鎖定' : '提交'}
+                提交
               </button>
             </div>
             {feedback && (
