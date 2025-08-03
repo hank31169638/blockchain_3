@@ -29,7 +29,7 @@ export default function SuccessPage() {
         maxWidth: '600px',
         lineHeight: '1.6'
       }}>
-        你已成功重建失落的區塊鏈分支，成為鏈中追蹤者的傳奇！
+        你已成功重建失落的區塊鏈分支，成為鏈中的傳奇！
       </p>
       
       <div style={{
