@@ -12,35 +12,163 @@ html, body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #1a2332 0%, #2d3f4f 50%, #3a5a6a 100%);
+  
+  /* 複雜的區塊鏈主題背景 */
+  background: 
+    /* 頂層：動態漸層 */
+    radial-gradient(circle at 20% 80%, rgba(0, 230, 184, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0, 123, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255, 193, 7, 0.1) 0%, transparent 50%),
+    
+    /* 中層：網格紋理 */
+    linear-gradient(90deg, rgba(0, 230, 184, 0.03) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(0, 230, 184, 0.03) 1px, transparent 1px),
+    
+    /* 底層：主要漸層 */
+    linear-gradient(135deg, 
+      #0a0f1c 0%,
+      #1a2332 25%, 
+      #2d3f4f 50%, 
+      #1a2838 75%, 
+      #0d1421 100%
+    );
+  
+  background-size: 
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    60px 60px,
+    60px 60px,
+    100% 100%;
+  
   background-attachment: fixed;
   min-height: 100vh;
-  color: #333;
+  color: #e8e8e8;
+  position: relative;
+  overflow-x: hidden;
 }
 
+/* 添加動態背景效果 */
+html::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  
+  /* 區塊鏈節點連接線效果 */
+  background-image: 
+    /* 對角線條紋 */
+    linear-gradient(45deg, 
+      transparent 0%, 
+      transparent 45%, 
+      rgba(0, 230, 184, 0.02) 50%, 
+      transparent 55%, 
+      transparent 100%
+    ),
+    linear-gradient(-45deg, 
+      transparent 0%, 
+      transparent 45%, 
+      rgba(0, 123, 255, 0.02) 50%, 
+      transparent 55%, 
+      transparent 100%
+    );
+  
+  background-size: 120px 120px, 80px 80px;
+  animation: backgroundFloat 20s ease-in-out infinite;
+}
+
+/* 添加浮動動畫 */
+@keyframes backgroundFloat {
+  0%, 100% { 
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0.5;
+  }
+  25% { 
+    transform: translate(-10px, -10px) rotate(0.5deg);
+    opacity: 0.7;
+  }
+  50% { 
+    transform: translate(10px, 5px) rotate(-0.5deg);
+    opacity: 0.6;
+  }
+  75% { 
+    transform: translate(-5px, 10px) rotate(0.3deg);
+    opacity: 0.8;
+  }
+}
+
+/* 頁面容器背景效果 */
 #__next {
   min-height: 100vh;
+  position: relative;
+}
+
+#__next::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  
+  /* 區塊鏈主題裝飾元素 */
+  background-image:
+    /* 左上角裝飾 */
+    radial-gradient(circle 150px at 5% 15%, 
+      rgba(0, 230, 184, 0.08) 0%, 
+      rgba(0, 230, 184, 0.04) 40%, 
+      transparent 70%
+    ),
+    /* 右下角裝飾 */
+    radial-gradient(circle 200px at 95% 85%, 
+      rgba(0, 123, 255, 0.08) 0%, 
+      rgba(0, 123, 255, 0.04) 40%, 
+      transparent 70%
+    ),
+    /* 中央光暈 */
+    radial-gradient(ellipse 800px 400px at 50% 50%, 
+      rgba(255, 193, 7, 0.03) 0%, 
+      transparent 50%
+    );
 }
 
 /* 全域按鈕樣式 */
 button {
   font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 /* 全域輸入框樣式 */
 input, textarea {
   font-family: inherit;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 230, 184, 0.3);
+  color: #e8e8e8;
+  transition: all 0.3s ease;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #00e6b8;
+  box-shadow: 0 0 0 3px rgba(0, 230, 184, 0.1);
 }
 
 /* 連結樣式 */
 a {
   color: #00e6b8;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #00796b;
+  color: #00b894;
   text-decoration: underline;
 }
 
@@ -50,20 +178,43 @@ img {
   height: auto;
 }
 
-/* 滾動條美化 */
+/* 滾動條美化 - 區塊鏈主題 */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(13, 20, 33, 0.5);
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 230, 184, 0.3);
-  border-radius: 4px;
+  background: linear-gradient(135deg, 
+    rgba(0, 230, 184, 0.6) 0%, 
+    rgba(0, 123, 255, 0.6) 100%
+  );
+  border-radius: 6px;
+  border: 2px solid rgba(13, 20, 33, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 230, 184, 0.5);
+  background: linear-gradient(135deg, 
+    rgba(0, 230, 184, 0.8) 0%, 
+    rgba(0, 123, 255, 0.8) 100%
+  );
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(13, 20, 33, 0.5);
+}
+
+/* 選擇文字樣式 */
+::selection {
+  background: rgba(0, 230, 184, 0.3);
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background: rgba(0, 230, 184, 0.3);
+  color: #ffffff;
 }

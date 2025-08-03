@@ -81,27 +81,129 @@ export default function BasketballGame({ onScoreSuccess, disabled = false, reset
     // 清空畫布
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     
-    // 繪製漸層背景
+    // 繪製深層漸層背景（天空效果）
     const bgGradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
-    bgGradient.addColorStop(0, '#1a2332');
-    bgGradient.addColorStop(0.7, '#2a3441');
-    bgGradient.addColorStop(1, '#1a2332');
+    bgGradient.addColorStop(0, '#0d1421'); // 深藍夜空
+    bgGradient.addColorStop(0.3, '#1a2332'); // 中層藍
+    bgGradient.addColorStop(0.6, '#2a3441'); // 淺層
+    bgGradient.addColorStop(0.85, '#3a4451'); // 接近地面
+    bgGradient.addColorStop(1, '#2a3441'); // 地面反射
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     
-    // 繪製地面（調高到50px）
-    ctx.fillStyle = '#3a4451';
+    // 繪製星星背景
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    const stars = [
+      {x: 50, y: 30, size: 1},
+      {x: 120, y: 45, size: 1.5},
+      {x: 200, y: 25, size: 1},
+      {x: 300, y: 40, size: 2},
+      {x: 380, y: 35, size: 1},
+      {x: 80, y: 70, size: 1.5},
+      {x: 250, y: 60, size: 1},
+      {x: 400, y: 80, size: 1.5},
+    ];
+    
+    stars.forEach(star => {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // 添加星星閃爍效果
+      ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.sin(Date.now() * 0.005 + star.x) * 0.3})`;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    
+    // 繪製遠山輪廓
+    ctx.fillStyle = 'rgba(42, 52, 65, 0.6)';
+    ctx.beginPath();
+    ctx.moveTo(0, CANVAS_HEIGHT - 150);
+    ctx.quadraticCurveTo(100, CANVAS_HEIGHT - 180, 200, CANVAS_HEIGHT - 160);
+    ctx.quadraticCurveTo(300, CANVAS_HEIGHT - 140, 450, CANVAS_HEIGHT - 170);
+    ctx.lineTo(450, CANVAS_HEIGHT - 50);
+    ctx.lineTo(0, CANVAS_HEIGHT - 50);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 繪製城市天際線
+    ctx.fillStyle = 'rgba(26, 35, 50, 0.8)';
+    const buildings = [
+      {x: 0, y: CANVAS_HEIGHT - 120, width: 60, height: 70},
+      {x: 60, y: CANVAS_HEIGHT - 100, width: 40, height: 50},
+      {x: 100, y: CANVAS_HEIGHT - 140, width: 50, height: 90},
+      {x: 150, y: CANVAS_HEIGHT - 110, width: 35, height: 60},
+      {x: 185, y: CANVAS_HEIGHT - 130, width: 45, height: 80},
+      {x: 280, y: CANVAS_HEIGHT - 105, width: 40, height: 55},
+      {x: 320, y: CANVAS_HEIGHT - 125, width: 55, height: 75},
+      {x: 375, y: CANVAS_HEIGHT - 115, width: 30, height: 65},
+      {x: 405, y: CANVAS_HEIGHT - 135, width: 45, height: 85},
+    ];
+    
+    buildings.forEach(building => {
+      ctx.fillRect(building.x, building.y, building.width, building.height);
+      
+      // 添加建築物窗戶燈光
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < Math.floor(building.height / 15); j++) {
+          if (Math.random() > 0.7) {
+            ctx.fillRect(
+              building.x + 5 + i * 15, 
+              building.y + 5 + j * 15, 
+              8, 8
+            );
+          }
+        }
+      }
+      ctx.fillStyle = 'rgba(26, 35, 50, 0.8)';
+    });
+    
+    // 繪製地面（籃球場效果）
+    const floorGradient = ctx.createLinearGradient(0, CANVAS_HEIGHT - 50, 0, CANVAS_HEIGHT);
+    floorGradient.addColorStop(0, '#4a5461');
+    floorGradient.addColorStop(0.3, '#3a4451');
+    floorGradient.addColorStop(0.7, '#2a3441');
+    floorGradient.addColorStop(1, '#1a2332');
+    ctx.fillStyle = floorGradient;
     ctx.fillRect(0, CANVAS_HEIGHT - 50, CANVAS_WIDTH, 50);
     
-    // 繪製地面紋理線條
-    ctx.strokeStyle = '#4a5461';
+    // 繪製籃球場紋理線條
+    ctx.strokeStyle = 'rgba(0, 230, 184, 0.3)';
     ctx.lineWidth = 1;
-    for (let i = 0; i < CANVAS_WIDTH; i += 20) {
+    for (let i = 0; i < CANVAS_WIDTH; i += 30) {
       ctx.beginPath();
       ctx.moveTo(i, CANVAS_HEIGHT - 50);
       ctx.lineTo(i, CANVAS_HEIGHT);
       ctx.stroke();
     }
+    
+    // 繪製場地邊線
+    ctx.strokeStyle = 'rgba(0, 230, 184, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, CANVAS_HEIGHT - 50);
+    ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT - 50);
+    ctx.stroke();
+    
+    // 繪製籃球場中圈（部分可見）
+    ctx.strokeStyle = 'rgba(0, 230, 184, 0.4)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(150, CANVAS_HEIGHT - 10, 40, Math.PI, 0);
+    ctx.stroke();
+    
+    // 繪製環境光效果
+    const lightGradient = ctx.createRadialGradient(
+      BASKET_X + BASKET_WIDTH / 2, BASKET_Y - 50, 0,
+      BASKET_X + BASKET_WIDTH / 2, BASKET_Y - 50, 200
+    );
+    lightGradient.addColorStop(0, 'rgba(255, 215, 0, 0.1)');
+    lightGradient.addColorStop(0.5, 'rgba(255, 215, 0, 0.05)');
+    lightGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+    ctx.fillStyle = lightGradient;
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     
     // 繪製籃球架背板
     const backboardX = BASKET_X + BASKET_WIDTH / 2 + 20;
@@ -117,6 +219,10 @@ export default function BasketballGame({ onScoreSuccess, disabled = false, reset
     ctx.strokeStyle = '#999999';
     ctx.lineWidth = 2;
     ctx.strokeRect(backboardX, backboardY, 8, 80);
+    
+    // 添加背板反光效果
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillRect(backboardX + 1, backboardY + 5, 2, 70);
     
     // 繪製籃球架支柱
     const poleGradient = ctx.createLinearGradient(BASKET_X + BASKET_WIDTH / 2 - 3, BASKET_Y, BASKET_X + BASKET_WIDTH / 2 + 3, BASKET_Y);

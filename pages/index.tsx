@@ -106,44 +106,63 @@ export default function Home() {
   const allCompleted = levelStates && levelStates.length > 0 && levelStates.every(lv => lv.status === 'completed');
 
   return (
-    <div className={styles.homeContainer} style={{backgroundColor: '#1a2332', minHeight: '100vh'}}>
+    <div className={styles.container}>
+      {/* 裝飾性背景元素 */}
+      <div className={styles.decorativeElements}></div>
+      
       {allCompleted ? (
-        <SuccessPage />
+        <div className={styles.successOverlay}>
+          <SuccessPage />
+        </div>
       ) : (
         <>
-          <header className={styles.header} style={{background: 'rgba(26, 35, 50, 0.95)', color: '#fff', padding: '20px', textAlign: 'center'}}>
-            <h1 style={{color: '#00e6b8', fontSize: '2rem'}}>區塊鏈破關任務</h1>
-            <ProgressBar current={currentLevel - 1} total={levels?.length || 0} />
+          {/* 標題區域 */}
+          <header className={styles.header}>
+            <h1 className={styles.title}>區塊鏈挑戰之旅</h1>
+            <p className={styles.subtitle}>
+              探索區塊鏈的奧秘，解鎖去中心化世界的智慧。每一個問題都是通往未來的密鑰。
+            </p>
+            <div className={styles.progressSection}>
+              <ProgressBar current={currentLevel - 1} total={levels?.length || 0} />
+            </div>
           </header>
-          <main className={styles.main} style={{display: 'flex', maxWidth: '1800px', margin: '0 auto', padding: '16px', gap: '20px', height: 'calc(100vh - 120px)'}}>
-            {/* 地圖區域 - 1 份 */}
-            <div className={styles.leftPanel} style={{flex: '1', display: 'flex', flexDirection: 'column', minWidth: '0'}}>
-              <MapComponent currentLevel={currentLevel} onSelectLevel={handleLevelChange} levels={levelStates || []} />
-            </div>
-            
-            {/* 題目區域 - 1.8 份 */}
-            <div className={styles.centerPanel} style={{flex: '1.8', display: 'flex', flexDirection: 'column', minWidth: '0', overflow: 'hidden'}}>
-              {levelStates && levelStates[currentLevel - 1] && (
-                <LevelCard
-                  key={currentLevel} // 強制重新載入組件以清空輸入框
-                  level={levelStates[currentLevel - 1]}
-                  onSubmit={handleSubmit}
-                  feedback={feedback}
-                  feedbackType={feedbackType}
-                  onAnswerAttempt={handleAnswerAttempt}
-                  canAnswer={canAnswer}
+
+          {/* 主要內容區域 */}
+          <main className={styles.mainContent}>
+            <div className={styles.gameLayout}>
+              {/* 地圖區域 */}
+              <div className={`${styles.mapSection} ${styles.loading}`}>
+                <MapComponent 
+                  currentLevel={currentLevel} 
+                  onSelectLevel={handleLevelChange} 
+                  levels={levelStates || []} 
                 />
-              )}
-            </div>
-            
-            {/* 投籃遊戲區域 - 1.2 份 */}
-            <div className={styles.rightPanel} style={{flex: '1.2', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minWidth: '0'}}>
-              <BasketballGameContainer 
-                onScoreSuccess={handleBasketballSuccess}
-                canAnswer={canAnswer}
-                wrongAnswerCount={wrongAnswerCount}
-                currentLevel={currentLevel}
-              />
+              </div>
+              
+              {/* 題目區域 */}
+              <div className={`${styles.questionSection} ${styles.loading}`}>
+                {levelStates && levelStates[currentLevel - 1] && (
+                  <LevelCard
+                    key={currentLevel}
+                    level={levelStates[currentLevel - 1]}
+                    onSubmit={handleSubmit}
+                    feedback={feedback}
+                    feedbackType={feedbackType}
+                    onAnswerAttempt={handleAnswerAttempt}
+                    canAnswer={canAnswer}
+                  />
+                )}
+              </div>
+              
+              {/* 投籃遊戲區域 */}
+              <div className={`${styles.basketballSection} ${styles.loading}`}>
+                <BasketballGameContainer 
+                  onScoreSuccess={handleBasketballSuccess}
+                  canAnswer={canAnswer}
+                  wrongAnswerCount={wrongAnswerCount}
+                  currentLevel={currentLevel}
+                />
+              </div>
             </div>
           </main>
         </>
