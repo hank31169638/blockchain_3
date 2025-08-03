@@ -50,7 +50,7 @@ export const levels: Level[] = [
         inputType: "text",
         example: "abc123def456",
         status: "locked",
-        answer: "f7adfc3b8019",
+        answer: "fef2f3adf2b8",
         storyBg: "🌳 Merkle 樹提供了高效的資料完整性驗證",
     },
     {
