@@ -102,7 +102,7 @@ export const levels: Level[] = [
         inputType: "text",
         example: "VOTEPASSSA15",
         status: "locked",
-        answer: "VOTENONESXA21",
+        answer: "VOTENONESX21",
         storyBg: "去中心化治理的哲學思辨",
     },
 ];
