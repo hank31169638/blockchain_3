@@ -27,69 +27,85 @@ export default function Home() {
   };
 
   // 關卡提交邏輯（僅範例，需根據題目設計驗證）
-  const handleSubmit = (input: string) => {
+  const handleSubmit = async (input: string) => {
     if (!levelStates || levelStates.length === 0) return;
     
     const currentLevelData = levelStates[currentLevel - 1];
     if (!currentLevelData) return;
     
-    let isCorrect = false;
-    
-    // 檢查答案是否正確
-    if (currentLevelData.answer.includes('|')) {
-      // 支援多種答案組合的題目（如雜湊特性題）
-      const correctAnswers = currentLevelData.answer.split('|');
-      const userAnswers = input.trim().split(/\s+/); // 用空格分割使用者輸入
-      
-      // 檢查是否包含所有必要答案（順序不限）
-      isCorrect = correctAnswers.every(answer => 
-        userAnswers.some(userAnswer => userAnswer === answer)
-      ) && userAnswers.length === correctAnswers.length;
-    } else {
-      // 一般題目的精確匹配
-      isCorrect = input.trim() === currentLevelData.answer;
-    }
-    
-    if (isCorrect) {
-      setFeedback('🎉 答對了！正在前往下一關...');
-      setFeedbackType('success');
-    
-      // 更新狀態
-      const newStates = levelStates.map((lv, idx) => {
-        if (idx === currentLevel - 1) return { ...lv, status: 'completed' as 'completed' };
-        if (idx === currentLevel) return { ...lv, status: 'unlocked' as 'unlocked' };
-        return lv;
+    try {
+      // 獲取 token 和時間戳
+      const tokenResponse = await fetch('/api/get-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          levelId: currentLevel
+        }),
       });
-
-      setLevelStates(newStates);
-      // 動畫延遲後進入下一關
-      setTimeout(() => {
-        setFeedback('');
-        if (currentLevel < levels.length) {
-          setCurrentLevel(currentLevel + 1);
-          // 進入下一關時重置投籃狀態
-          setCanAnswer(false);
-          setWrongAnswerCount(0);
-        }
-      }, 1500);
-    } else {
-      setFeedback('❌ 答案不正確！');
-      setFeedbackType('error');
+      const { token, timestamp } = await tokenResponse.json();
       
-      // 3秒後清除錯誤訊息
-      setTimeout(() => {
-        setFeedback('');
-      }, 3000);
+      // 驗證答案
+      const response = await fetch('/api/verify-answer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          levelId: currentLevel,
+          answer: input.trim(),
+          timestamp,
+          token
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setFeedback('🎉 答對了！正在前往下一關...');
+        setFeedbackType('success');
+      
+        // 更新狀態
+        const newStates = levelStates.map((lv, idx) => {
+          if (idx === currentLevel - 1) return { ...lv, status: 'completed' as 'completed' };
+          if (idx === currentLevel) return { ...lv, status: 'unlocked' as 'unlocked' };
+          return lv;
+        });
+
+        setLevelStates(newStates);
+        // 動畫延遲後進入下一關
+        setTimeout(() => {
+          setFeedback('');
+          if (currentLevel < levels.length) {
+            setCurrentLevel(currentLevel + 1);
+            // 進入下一關時重置投籃狀態
+            setCanAnswer(false);
+            setWrongAnswerCount(0);
+          }
+        }, 1500);
+      } else {
+        setFeedback('❌ 答案不正確！請重新投籃再試一次');
+        setFeedbackType('error');
+        setWrongAnswerCount(prev => prev + 1);
+        setCanAnswer(false); // 答錯需要重新投籃
+        
+        // 3秒後清除錯誤訊息
+        setTimeout(() => {
+          setFeedback('');
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('答案驗證錯誤:', error);
+      setFeedback('❌ 系統錯誤，請稍後再試');
+      setFeedbackType('error');
     }
   };
 
   // 處理答題嘗試的回調
   const handleAnswerAttempt = (isCorrect: boolean) => {
     setLastAnswerCorrect(isCorrect);
-    if (!isCorrect) {
-      setWrongAnswerCount(prev => prev + 1);
-      setCanAnswer(false); // 答錯需要重新投籃
-    }
+    // 移除這裡的投籃邏輯，由handleSubmit統一處理
   };
 
   // 處理投籃成功

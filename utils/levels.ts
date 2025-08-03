@@ -7,7 +7,6 @@ export type Level = {
     inputType: "text" | "select";
     example: string;
     status: "locked" | "unlocked" | "completed";
-    answer: string;
     storyBg?: string; // 技術背景
     emotion: string; // 主題色調
     narrator: string; // 技術說明
@@ -24,7 +23,6 @@ export const levels: Level[] = [
         inputType: "text",
         example: "通人性 伸縮自如 我可以逆 長度很長",
         status: "unlocked",
-        answer: "唯一性|不可逆|小變化大差異|固定輸出長度",
         storyBg: "# 雜湊函數是區塊鏈資料完整性的基石",
     },
     {
@@ -37,7 +35,6 @@ export const levels: Level[] = [
         inputType: "text",
         example: "1903(nonce值)",
         status: "locked",
-        answer: "1314",
         storyBg: "⛏️ 挖礦是維護區塊鏈安全的計算競賽",
     },
     {
@@ -50,7 +47,6 @@ export const levels: Level[] = [
         inputType: "text",
         example: "abc123def456",
         status: "locked",
-        answer: "fef2f3adf2b8",
         storyBg: "🌳 Merkle 樹提供了高效的資料完整性驗證",
     },
     {
@@ -63,7 +59,6 @@ export const levels: Level[] = [
         inputType: "text",
         example: "?",
         status: "locked",
-        answer: "相容性",
         storyBg: "🔀 分叉是區塊鏈協議演進的核心機制",
     },
     {
@@ -76,7 +71,6 @@ export const levels: Level[] = [
         inputType: "text",
         example: "MID67",
         status: "locked",
-        answer: "HIGH99",
         storyBg: "博弈論是理解區塊鏈激勵機制的關鍵",
     },
     {
@@ -89,7 +83,6 @@ export const levels: Level[] = [
         inputType: "text",
         example: "CHAIN4L2",
         status: "locked",
-        answer: "CHAIN3N1",
         storyBg: "⏰ 時間和共識的哲學思辨",
     },
     {
@@ -102,7 +95,6 @@ export const levels: Level[] = [
         inputType: "text",
         example: "VOTEPASSSA15",
         status: "locked",
-        answer: "VOTENONESX21",
         storyBg: "去中心化治理的哲學思辨",
     },
 ];

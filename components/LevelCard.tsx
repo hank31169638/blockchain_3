@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Level } from '../utils/levels';
 
 interface Props {
@@ -35,6 +35,15 @@ function parseHintWithLinks(hint: string) {
 export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'error', onAnswerAttempt, canAnswer = false }: Props) {
   const [input, setInput] = useState('');
   const [showHint, setShowHint] = useState(false);
+
+  // 監控feedback變化，如果答案正確就清空輸入框
+  useEffect(() => {
+    if (feedback && feedback.includes('🎉')) {
+      setTimeout(() => {
+        setInput('');
+      }, 1000); // 延遲1秒後清空，讓使用者看到自己的答案
+    }
+  }, [feedback]);
 
   const handleSubmit = () => {
     if (input.trim() && canAnswer) {
@@ -223,16 +232,6 @@ export default function LevelCard({ level, onSubmit, feedback, feedbackType = 'e
         {/* 狀態判斷：已完成顯示答案，未完成顯示輸入框 */}
         {level.status === 'completed' ? (
           <>
-            <div style={{
-              padding: '12px',
-              background: 'rgba(0, 230, 184, 0.2)',
-              borderRadius: '8px',
-              border: '1px solid #00e6b8',
-              marginBottom: '16px'
-            }}>
-              <span style={{color: '#00e6b8', fontWeight: 'bold'}}>本關答案：</span>
-              <span style={{color: '#fff', marginLeft: '8px'}}>{level.answer}</span>
-            </div>
             {feedback && (
               <div style={feedbackStyle}>
                 {feedback}
